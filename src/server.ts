@@ -2,6 +2,7 @@ import {Server} from 'http';
 import mongoose from 'mongoose';
 import app from './app';
 import { envVars } from './app/config/env';
+import { seedAdmin } from './app/utils/seedAdmin';
 
 let server :Server;
 
@@ -10,7 +11,7 @@ const startServer =async()=>{
         await mongoose.connect(envVars.DB_URL)
         console.log('Connected to DB');
         server = app.listen(envVars.PORT, ()=>{
-            console.log(`Sercer Running on Port: ${envVars.PORT}`)
+            console.log(`Server Running on Port: ${envVars.PORT}`)
         })
         
     } catch (error) {
@@ -18,7 +19,10 @@ const startServer =async()=>{
     }
 
 }
-startServer()
+(async () => {
+    await startServer();
+    await seedAdmin();
+})()
 
 process.on("unhandledRejection",()=>{
     console.log("Unhandled Rejection detected...Server shutting down");
