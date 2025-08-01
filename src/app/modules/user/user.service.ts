@@ -6,8 +6,6 @@ import { JwtPayload } from "jsonwebtoken";
 import { Transaction } from "../transaction/transaction.model";
 
 
-
-
 const sendMoney = async (senderId: string, receiverId: string, amount: number) => {
     if (amount === 0 || amount === null) throw new AppError(httpStatus.BAD_REQUEST, "Added Balance then send money")
     if (senderId === receiverId) throw new AppError(httpStatus.BAD_REQUEST, "Cannot send money to yourself")
@@ -84,7 +82,9 @@ const getUserTransaction = async (decodedToken: JwtPayload) => {
     const totalDocument = await Transaction.countDocuments()
     return {
         data: transaction,
-        meta: totalDocument
+        meta:{
+            total:totalDocument
+        }
     }
 
 }

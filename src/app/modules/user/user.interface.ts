@@ -5,9 +5,10 @@ export enum Role {
     USER = "USER",
     AGENT = "AGENT"
 }
-export enum AgentStatus {
-  APPROVED = 'APPROVED',
-  SUSPENDED = 'SUSPENDED',
+export enum AccountStatus {
+  ACTIVE = "ACTIVE",
+  SUSPENDED = "SUSPENDED",
+  PENDING = "PENDING",
 }
 
 
@@ -17,8 +18,7 @@ export interface IUser {
   email: string;
   password: string;
   role: Role;
-  agentStatus?: AgentStatus;
   isVerified?: boolean;
   commissionRate?: number; 
-
+  status:AccountStatus
 }

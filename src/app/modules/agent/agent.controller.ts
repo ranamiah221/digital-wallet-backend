@@ -18,12 +18,13 @@ const CashIn = catchAsync(async (req: Request, res: Response) => {
 })
 
 const CashOut = catchAsync(async (req: Request, res: Response) => {
-   const {senderId, receiverId, amount}= req.body
-   const result = await AgentService.CashOut(senderId, receiverId, amount)
+   const decodedToken = req.user
+   const {userId, amount}= req.body
+   const result = await AgentService.CashOut(decodedToken, userId, amount)
     sendResponse(res,{
         statusCode:httpStatus.CREATED,
         success:true,
-        message:"Send Money Successfully",
+        message:"Cash Out Successfully",
         data: result,
     })
     

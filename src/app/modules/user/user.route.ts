@@ -3,13 +3,12 @@ import { UserController } from "./user.controller";
 import { checkAuth } from "../../middleware/checkAuth";
 import { Role } from "./user.interface";
 
-
 const router = Router();
 
-router.post('/send-money', UserController.sendMoney)
-router.post('/add-money', UserController.AddMoney)
-router.post('/withdraw-money', UserController.withdrawMoney)
+router.post('/send-money', checkAuth(Role.USER), UserController.sendMoney)
+router.post('/add-money', checkAuth(Role.USER),UserController.AddMoney)
+router.post('/withdraw-money', checkAuth(Role.USER),UserController.withdrawMoney)
 router.get('/transaction',checkAuth(Role.USER), UserController.getUserTransaction)
 
 
-export const UserRoutes = router
+export const UserRoutes = router;
