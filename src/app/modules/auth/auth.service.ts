@@ -2,9 +2,10 @@ import AppError from "../../errorHelpers/AppError"
 import { User } from "../user/user.model"
 import httpStatus from 'http-status-codes';
 import bcrypt from 'bcrypt';
-import { generateToken } from "../../utils/jwt";
 import { envVars } from "../../config/env";
 import { Wallet } from "../wallet/wallet.model";
+import { createNewAccessTokenWithRefreshToken, createUserToken } from "../../utils/userToken";
+import { JwtPayload } from "jsonwebtoken";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const createUser = async (payload: any) => {
@@ -29,23 +30,42 @@ const credentialLogin = async (email:string, password:string) => {
     }
     const isPasswordMatch = await bcrypt.compare(password, user.password)
     if(!isPasswordMatch){
-        throw new AppError(httpStatus.BAD_REQUEST, "Password Does Not Match.")
+        throw new AppError(httpStatus.BAD_REQUEST, "Incorrect Password.")
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const {password: pass, ...rest}= user.toObject();
-    const JwtPayload = {
-        userId:user._id,
-        email:user.email,
-        role:user.role
-    }
-    const accessToken = generateToken(JwtPayload, envVars.JWT_TOKEN_SECRET, envVars.JWT_EXPIRE_IN)
+   const userToken = createUserToken(user)
     return {
         user:rest,
-        accessToken:accessToken
+        accessToken:userToken.accessToken,
+        refreshToken:userToken.refreshToken,
     }
 
 }
+
+const getNewAccessToken = async (refreshToken: string) => {
+    const newAccessToken = await createNewAccessTokenWithRefreshToken(refreshToken)
+    return {
+        accessToken: newAccessToken
+    }
+}
+
+const changedPassword = async (decodedToken: JwtPayload, oldPassword:string, newPassword:string) => {
+    const user = await User.findById(decodedToken.userId)
+    if(!user){
+        throw new AppError(httpStatus.BAD_REQUEST, "User does not Exits")
+    }
+    const isOldPasswordMatch = await bcrypt.compare(oldPassword, user.password)
+    if(!isOldPasswordMatch){
+        throw new AppError(httpStatus.UNAUTHORIZED, "Old Password Does Not Match")
+    }
+
+    user.password = await bcrypt.hash(newPassword, Number(envVars.BCRYPT_ROUND))
+    await user.save()
+}
 export const AuthService = {
    credentialLogin,
-   createUser
+   createUser,
+   getNewAccessToken,
+   changedPassword
 }

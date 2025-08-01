@@ -1,12 +1,10 @@
 import { model, Schema } from "mongoose";
-import { ITransaction } from "./transaction.interface";
-
-
+import { ITransaction, TransactionStatus } from "./transaction.interface";
 
 const transactionSchema = new Schema<ITransaction>({
     type: {
         type: String, required: true,
-        enum: ['ADD_MONEY', 'WITHDRAW', 'SEND', 'CASH_IN', 'CASH_OUT', 'COMMISSION'],
+        enum: ['ADD_MONEY', 'WITHDRAW', 'SEND', 'CASH_IN', 'CASH_OUT'],
     },
     from: {
         type: String,
@@ -23,6 +21,7 @@ const transactionSchema = new Schema<ITransaction>({
         required: true,
         min: 0,
     },
+    staus:{type:String, enum:Object.values(TransactionStatus),default:TransactionStatus.CONFIRM},
     createdBy: {
         type: String,
         ref: 'User',

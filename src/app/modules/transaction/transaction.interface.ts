@@ -1,5 +1,9 @@
 import { Types } from "mongoose";
-
+export enum TransactionStatus{
+  PENDING = "PENDING",
+  CONFIRM= "CONFIRM",
+  FAILED= "FAILED"
+}
 export type TransactionType =
   | 'ADD_MONEY'     
   | 'WITHDRAW'     
@@ -16,7 +20,7 @@ export interface ITransaction {
   to?: string;      
   amount: number;
   createdBy: string; 
-
+  staus?:TransactionStatus 
   createdAt?: Date;
   updatedAt?: Date;
 }

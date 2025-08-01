@@ -33,9 +33,9 @@ const CashIn = async (decodedToken:JwtPayload, userId: string, amount: number) =
 
 }
 
-const CashOut = async (userId: string, agentId: string, amount: number) => {
-
-    const agentWallet = await Wallet.findOne({ userId: agentId })
+const CashOut = async (decodedToken: JwtPayload,userId:string, amount: number) => {
+   const {userId:agentId}= decodedToken;
+     const agentWallet = await Wallet.findOne({ userId: agentId })
     if (!agentWallet) throw new AppError(httpStatus.BAD_REQUEST, "Agent Wallet Not Found")
     const userWallet = await Wallet.findOne({ userId: userId })
     if (!userWallet) throw new AppError(httpStatus.BAD_REQUEST, "User Wallet Not Found")
@@ -53,7 +53,7 @@ const CashOut = async (userId: string, agentId: string, amount: number) => {
         from: userId,
         to: agentId,
         amount,
-        createdBy: userId,
+        createdBy: agentId,
     })
     return {
         userWallet: userWallet,
