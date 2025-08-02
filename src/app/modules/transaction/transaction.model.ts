@@ -27,6 +27,7 @@ const transactionSchema = new Schema<ITransaction>({
         ref: 'User',
         required: true,
     },
+    source: { type: String, enum: ['bank', 'mobile_banking'] },
 }, { timestamps: true, versionKey: false })
 
 export const Transaction = model<ITransaction>("Transaction", transactionSchema)

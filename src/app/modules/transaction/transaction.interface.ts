@@ -20,7 +20,8 @@ export interface ITransaction {
   to?: string;      
   amount: number;
   createdBy: string; 
-  staus?:TransactionStatus 
+  staus?:TransactionStatus;
+  source?: 'bank' | 'mobile_banking';
   createdAt?: Date;
   updatedAt?: Date;
 }

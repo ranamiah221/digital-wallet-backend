@@ -4,11 +4,14 @@ import { Wallet } from "../wallet/wallet.model";
 import { TransactionService } from "../transaction/transaction.service";
 import { JwtPayload } from "jsonwebtoken";
 import { Transaction } from "../transaction/transaction.model";
+import { User } from "./user.model";
 
 
 const sendMoney = async (senderId: string, receiverId: string, amount: number) => {
+    
     if (amount === 0 || amount === null) throw new AppError(httpStatus.BAD_REQUEST, "Added Balance then send money")
     if (senderId === receiverId) throw new AppError(httpStatus.BAD_REQUEST, "Cannot send money to yourself")
+
     const senderWallet = await Wallet.findOne({ userId: senderId })
     const receiverWallet = await Wallet.findOne({ userId: receiverId })
     if (!senderWallet) throw new AppError(httpStatus.NOT_FOUND, "Sender Wallet Not Found")
@@ -32,7 +35,7 @@ const sendMoney = async (senderId: string, receiverId: string, amount: number) =
 
 }
 
-const AddMoney = async (userId: string, amount: number) => {
+const AddMoney = async (userId: string, amount: number, source: 'bank' | 'mobile_banking') => {
 
     const wallet = await Wallet.findOne({ userId: userId })
     if (!wallet) throw new AppError(httpStatus.BAD_REQUEST, "Wallet Not Found")
@@ -46,6 +49,7 @@ const AddMoney = async (userId: string, amount: number) => {
         type: 'ADD_MONEY',
         to: userId,
         amount,
+        source,
         createdBy: userId,
     })
 
@@ -53,9 +57,9 @@ const AddMoney = async (userId: string, amount: number) => {
 
 }
 
-const withdrawMoney = async (userId: string, amount: number) => {
+const withdrawMoney = async (userId: string, amount: number, source:'bank' | 'mobile_banking') => {
 
-    const wallet = await Wallet.findOne({ userId: userId })
+    const wallet = await Wallet.findOne({userId: userId})
     if (!wallet) throw new AppError(httpStatus.BAD_REQUEST, "Wallet Not Found")
     if (wallet.status === "BLOCKED") throw new AppError(httpStatus.BAD_REQUEST, "Wallet is blocked")
     if (amount <= 0) throw new Error('Amount must be greater than zero');
@@ -68,6 +72,7 @@ const withdrawMoney = async (userId: string, amount: number) => {
         type: 'WITHDRAW',
         from: userId,
         amount,
+        source,
         createdBy: userId,
     })
     return wallet;
@@ -76,10 +81,10 @@ const withdrawMoney = async (userId: string, amount: number) => {
 
 const getUserTransaction = async (decodedToken: JwtPayload) => {
 
-    const transaction = await Transaction.findOne({
+    const transaction = await Transaction.find({
         createdBy: decodedToken.userId
-    }).select("_id type")
-    const totalDocument = await Transaction.countDocuments()
+    }).select("_id type createdBy")
+    const totalDocument = await Transaction.countDocuments({createdBy: decodedToken.userId})
     return {
         data: transaction,
         meta:{
@@ -89,10 +94,22 @@ const getUserTransaction = async (decodedToken: JwtPayload) => {
 
 }
 
+const getMe = async (decodedToken: JwtPayload) => {
+    const user = await User.findOne({
+        _id: decodedToken.userId
+    }).select("-password")
+    const wallet = await Wallet.findOne({userId: decodedToken.userId}).select("-_id")
+   
+    return {
+       user,wallet
+    }
+
+}
 export const UserService = {
     sendMoney,
     AddMoney,
     withdrawMoney,
-    getUserTransaction
+    getUserTransaction,
+    getMe
 
 }

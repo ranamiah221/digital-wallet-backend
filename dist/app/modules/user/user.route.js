@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.UserRoutes = void 0;
+const express_1 = require("express");
+const user_controller_1 = require("./user.controller");
+const checkAuth_1 = require("../../middleware/checkAuth");
+const user_interface_1 = require("./user.interface");
+const router = (0, express_1.Router)();
+router.post('/send-money', (0, checkAuth_1.checkAuth)(user_interface_1.Role.USER), user_controller_1.UserController.sendMoney);
+router.post('/add-money', (0, checkAuth_1.checkAuth)(user_interface_1.Role.USER), user_controller_1.UserController.AddMoney);
+router.post('/withdraw-money', (0, checkAuth_1.checkAuth)(user_interface_1.Role.USER), user_controller_1.UserController.withdrawMoney);
+router.get('/transaction/me', (0, checkAuth_1.checkAuth)(user_interface_1.Role.USER), user_controller_1.UserController.getUserTransaction);
+router.get('/me', (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.Role)), user_controller_1.UserController.getMe);
+exports.UserRoutes = router;
