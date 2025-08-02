@@ -6,7 +6,9 @@ import { UserService } from "./user.service"
 
 
 const sendMoney = catchAsync(async (req: Request, res: Response) => {
-   const {senderId, receiverId, amount}= req.body
+    const decodedToken=req.user;
+    const {userId:senderId}=decodedToken;
+   const {receiverId, amount}= req.body
    const result = await UserService.sendMoney(senderId, receiverId, amount)
     sendResponse(res,{
         statusCode:httpStatus.CREATED,
@@ -19,8 +21,8 @@ const sendMoney = catchAsync(async (req: Request, res: Response) => {
 
 const AddMoney = catchAsync(async (req: Request, res: Response) => {
 //    const decodedToken = req.user;
-   const {userId, amount}= req.body
-   const result = await UserService.AddMoney(userId, amount)
+   const {userId,source,  amount}= req.body
+   const result = await UserService.AddMoney(userId, amount, source)
     sendResponse(res,{
         statusCode:httpStatus.CREATED,
         success:true,
@@ -31,16 +33,14 @@ const AddMoney = catchAsync(async (req: Request, res: Response) => {
 })
 
 const withdrawMoney = catchAsync(async (req: Request, res: Response) => {
-//    const decodedToken = req.user;
-   const {userId, amount}= req.body
-   const result = await UserService.withdrawMoney(userId, amount)
+   const { userId,amount, source}= req.body
+   const result = await UserService.withdrawMoney(userId, amount, source)
     sendResponse(res,{
         statusCode:httpStatus.CREATED,
         success:true,
         message:"Money Withdraw Successfully",
         data: result,
     })
-    
 })
 
 const getUserTransaction = catchAsync(async (req: Request, res: Response) => {
@@ -54,6 +54,17 @@ const getUserTransaction = catchAsync(async (req: Request, res: Response) => {
     })
     
 })
+const getMe = catchAsync(async (req: Request, res: Response) => {
+   const decodedToken = req.user;
+   const result = await UserService.getMe(decodedToken)
+    sendResponse(res,{
+        statusCode:httpStatus.CREATED,
+        success:true,
+        message:"Get Information Successfully",
+        data: result,
+    })
+    
+})
 
 
 
@@ -61,5 +72,6 @@ export const UserController = {
    sendMoney,
    AddMoney,
    withdrawMoney,
-   getUserTransaction
+   getUserTransaction,
+   getMe
 }

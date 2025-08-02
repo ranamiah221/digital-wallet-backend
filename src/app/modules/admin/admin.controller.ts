@@ -27,7 +27,8 @@ const getAllAgentOnly = catchAsync(async (req: Request, res: Response) => {
 })
 
 const getAllWallets = catchAsync(async (req: Request, res: Response) => {
-   const result = await AdminService.getAllWallets()
+     const query = req.query;
+   const result = await AdminService.getAllWallets(query as Record<string, string>)
     sendResponse(res,{
         statusCode:httpStatus.OK,
         success:true,
@@ -38,7 +39,8 @@ const getAllWallets = catchAsync(async (req: Request, res: Response) => {
 })
 
 const getAllTransactions = catchAsync(async (req: Request, res: Response) => {
-   const result = await AdminService.getAllTransactions()
+   const query = req.query;
+   const result = await AdminService.getAllTransactions(query as Record<string, string>)
     sendResponse(res,{
         statusCode:httpStatus.OK,
         success:true,
@@ -89,7 +91,7 @@ const approveAgent = catchAsync(async (req: Request, res: Response) => {
     sendResponse(res,{
         statusCode:httpStatus.OK,
         success:true,
-        message:"Agent Approve Successfully",
+        message:"Agent Active Successfully",
         data: result,
     })
     

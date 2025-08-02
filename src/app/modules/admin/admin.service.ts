@@ -29,30 +29,48 @@ const getAllAgentOnly = async () => {
     }
 }
 
-const getAllWallets = async () => {
-    const wallet = await Wallet.find().select('_id')
+const getAllWallets = async (query :Record<string, string>) => {
+    const sort = query.sort || "-createdAt";
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+    const skip = (page - 1) * limit
+    const wallet = await Wallet.find().sort(sort).skip(skip).limit(limit).select('userId balance status')
     const totalWallet = await Wallet.countDocuments()
+    const meta={
+        page:page,
+        limit:limit,
+        total:totalWallet,
+        totalPage:Math.ceil(totalWallet / limit)
+    }
     return {
+        meta,
         data: wallet,
-        meta:{
-            total:totalWallet
-        }
+        
     }
 }
 
-const getAllTransactions = async () => {
-    const transaction = await Transaction.find().select('_id')
+const getAllTransactions = async (query :Record<string, string>) => {
+    const sort = query.sort || "-createdAt";
+    const page = Number(query.page) || 1;
+    const limit = Number(query.limit) || 10;
+    const skip = (page - 1) * limit
+    const transaction = await Transaction.find().sort(sort).skip(skip).limit(limit).select('_id amount')
     const totalTransaction = await Transaction.countDocuments()
+    const meta = {
+        page: page,
+        limit:limit,
+        total:totalTransaction,
+        totalPage:Math.ceil(totalTransaction/limit),
+    }
     return {
+        meta,
         data: transaction,
-        meta:{
-            total:totalTransaction
-        }
+        
     }
 }
 
 const blockWallet = async (id: string) => {
-    const wallet = await Wallet.findOneAndUpdate({_id:id}, {status:WalletStatus.BLOCKED}, {new: true, runValidators:true})
+    const wallet = await Wallet.findOneAndUpdate({userId:id}, {status:WalletStatus.BLOCKED}, {new: true, runValidators:true})
     if(!wallet){
         throw new AppError(httpStatus.NOT_FOUND, "Wallet Not Found")
     }
@@ -60,7 +78,7 @@ const blockWallet = async (id: string) => {
     return wallet
 }
 const unBlockWallet = async (id: string) => {
-    const wallet = await Wallet.findOneAndUpdate({_id:id}, {status:WalletStatus.ACTIVE}, {new: true, runValidators:true})
+    const wallet = await Wallet.findOneAndUpdate({userId:id}, {status:WalletStatus.ACTIVE}, {new: true, runValidators:true})
      if(!wallet){
         throw new AppError(httpStatus.NOT_FOUND, "Wallet Not Found")
     }

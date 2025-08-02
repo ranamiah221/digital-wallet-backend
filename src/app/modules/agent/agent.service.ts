@@ -3,9 +3,16 @@ import AppError from "../../errorHelpers/AppError";
 import { TransactionService } from "../transaction/transaction.service";
 import { Wallet } from "../wallet/wallet.model";
 import httpStatus from "http-status-codes";
+import { User } from "../user/user.model";
+import { AccountStatus } from "../user/user.interface";
 
 const CashIn = async (decodedToken:JwtPayload, userId: string, amount: number) => {
      const {userId:agentId}= decodedToken;
+
+    const user = await User.findOne({_id:agentId})
+   if(user?.status === AccountStatus.SUSPENDED){
+    throw new AppError(httpStatus.BAD_REQUEST, "Your Account has been Suspended.")
+   }
     const agentWallet = await Wallet.findOne({ userId: agentId })
     if (!agentWallet) throw new AppError(httpStatus.BAD_REQUEST, "Agent Wallet Not Found")
     const userWallet = await Wallet.findOne({ userId: userId })
@@ -35,7 +42,11 @@ const CashIn = async (decodedToken:JwtPayload, userId: string, amount: number) =
 
 const CashOut = async (decodedToken: JwtPayload,userId:string, amount: number) => {
    const {userId:agentId}= decodedToken;
-     const agentWallet = await Wallet.findOne({ userId: agentId })
+   const agent = await User.findOne({_id: agentId})
+   if(agent?.status === AccountStatus.SUSPENDED){
+    throw new AppError(httpStatus.BAD_REQUEST, "Your Account has Suspended.")
+   }
+    const agentWallet = await Wallet.findOne({ userId: agentId })
     if (!agentWallet) throw new AppError(httpStatus.BAD_REQUEST, "Agent Wallet Not Found")
     const userWallet = await Wallet.findOne({ userId: userId })
     if (!userWallet) throw new AppError(httpStatus.BAD_REQUEST, "User Wallet Not Found")
