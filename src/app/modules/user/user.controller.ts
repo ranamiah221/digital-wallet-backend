@@ -20,8 +20,9 @@ const sendMoney = catchAsync(async (req: Request, res: Response) => {
 })
 
 const AddMoney = catchAsync(async (req: Request, res: Response) => {
-//    const decodedToken = req.user;
-   const {userId,source,  amount}= req.body
+   const decodedToken = req.user;
+   const { userId }= decodedToken;
+   const {source,  amount}= req.body
    const result = await UserService.AddMoney(userId, amount, source)
     sendResponse(res,{
         statusCode:httpStatus.CREATED,
@@ -33,7 +34,9 @@ const AddMoney = catchAsync(async (req: Request, res: Response) => {
 })
 
 const withdrawMoney = catchAsync(async (req: Request, res: Response) => {
-   const { userId,amount, source}= req.body
+     const decodedToken = req.user;
+   const {userId}= decodedToken;
+   const { amount, source}= req.body
    const result = await UserService.withdrawMoney(userId, amount, source)
     sendResponse(res,{
         statusCode:httpStatus.CREATED,

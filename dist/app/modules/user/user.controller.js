@@ -30,8 +30,9 @@ const sendMoney = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, v
     });
 }));
 const AddMoney = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    //    const decodedToken = req.user;
-    const { userId, source, amount } = req.body;
+    const decodedToken = req.user;
+    const { userId } = decodedToken;
+    const { source, amount } = req.body;
     const result = yield user_service_1.UserService.AddMoney(userId, amount, source);
     (0, sandResponse_1.sendResponse)(res, {
         statusCode: http_status_codes_1.default.CREATED,
@@ -41,7 +42,9 @@ const AddMoney = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, vo
     });
 }));
 const withdrawMoney = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, amount, source } = req.body;
+    const decodedToken = req.user;
+    const { userId } = decodedToken;
+    const { amount, source } = req.body;
     const result = yield user_service_1.UserService.withdrawMoney(userId, amount, source);
     (0, sandResponse_1.sendResponse)(res, {
         statusCode: http_status_codes_1.default.CREATED,
